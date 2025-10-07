@@ -61,9 +61,31 @@ pip install -r requirements.txt
 
 ### Starting the Server
 
+**Option 1: Using Python directly**
+
 Run the server with:
 ```bash
 python server.py
+```
+
+**Option 2: Using the start script**
+
+```bash
+./start_server.sh
+```
+
+**Option 3: Using Docker**
+
+Build and run with Docker Compose:
+```bash
+# Make sure your model is in models/face_model.zip
+docker-compose up -d
+```
+
+Or build and run manually:
+```bash
+docker build -t face-recognition-server .
+docker run -p 5000:5000 -v $(pwd)/models:/app/models face-recognition-server
 ```
 
 The server will start on `http://localhost:5000` by default.
