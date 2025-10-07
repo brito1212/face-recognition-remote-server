@@ -211,3 +211,5 @@ models/*.zip
 models/*.h5
 models/*.pb
 models/*/
+
+tmp/
