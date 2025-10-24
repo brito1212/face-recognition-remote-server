@@ -2,6 +2,10 @@
 
 from flask import Blueprint, request, jsonify
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from utils.face_detector import detect_and_crop_face
 from utils.model_loader import load_model, predict_identity
 
