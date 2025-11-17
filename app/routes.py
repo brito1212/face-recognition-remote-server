@@ -3,6 +3,7 @@
 from flask import Blueprint, request, jsonify
 import os
 from dotenv import load_dotenv
+import psutil
 
 load_dotenv()
 
@@ -10,6 +11,7 @@ from utils.face_detector import detect_and_crop_face
 from utils.model_loader import load_model, predict_identity
 
 bp = Blueprint("main", __name__)
+process = psutil.Process()
 
 # Global variable to store the loaded model
 _model = None
@@ -41,6 +43,8 @@ def recognize():
         - recognized: bool (whether a face was recognized)
         - identity: string (name of the recognized person or "unknown")
     """
+    ram_before = process.memory_info().rss
+    cpu_before = process.cpu_percent()
 
     file = request.data
     if not file:
@@ -61,12 +65,18 @@ def recognize():
         face_image = detect_and_crop_face(file)
 
         if face_image is None:
+            ram_after = process.memory_info().rss
+            cpu_after = process.cpu_percent()
             return (
                 jsonify(
                     {
                         "recognized": False,
                         "identity": "unknown",
                         "message": "No face detected in the image",
+                        "cpu_before": cpu_before,
+                        "cpu_after": cpu_after,
+                        "ram_before": ram_before,
+                        "ram_after": ram_after
                     }
                 ),
                 200,
@@ -76,13 +86,31 @@ def recognize():
         identity, confidence = predict_identity(model, face_image)
 
         recognized = identity != "unknown"
+        ram_after = process.memory_info().rss
+        cpu_after = process.cpu_percent()
 
-        return jsonify({"recognized": recognized, "identity": identity, "confidence": confidence}), 200
+        return jsonify({
+            "recognized": recognized, 
+            "identity": identity, 
+            "confidence": confidence, 
+            "cpu_before": cpu_before,
+            "cpu_after": cpu_after,
+            "ram_before": ram_before,
+            "ram_after": ram_after
+        }), 200
 
     except Exception as e:
         return (
-            jsonify({"error": str(e), "recognized": False, "identity": "unknown", "confidence": 0.0}),
-            500,
+            jsonify({
+                "error": str(e),
+                "recognized": False, 
+                "identity": "unknown", 
+                "confidence": 0.0,
+                "cpu_before": cpu_before,
+                "cpu_after": process.cpu_percent(),
+                "ram_before": ram_before,
+                "ram_after": process.memory_info().rss
+            }), 500,
         )
 
 

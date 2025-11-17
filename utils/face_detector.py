@@ -140,6 +140,8 @@ def detect_and_crop_face(
     # Resize and convert to RGB
     face_bgr = cv2.resize(face_bgr, target_size, interpolation=cv2.INTER_AREA)
     face_rgb = cv2.cvtColor(face_bgr, cv2.COLOR_BGR2RGB)
+    # face_gray = cv2.cvtColor(face_bgr, cv2.COLOR_BGR2GRAY)
+    # face_gray = cv2.resize(face_gray, target_size, interpolation=cv2.INTER_AREA)
 
     if debug:
         try:
@@ -149,4 +151,5 @@ def detect_and_crop_face(
         except Exception:
             pass
 
+    # return face_gray
     return face_rgb
